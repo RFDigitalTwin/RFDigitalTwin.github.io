@@ -1,0 +1,320 @@
+1:"$Sreact.fragment"
+2:I[18423,["177","static/chunks/app/layout-30112eed97c08ba4.js"],"default"]
+3:I[87555,[],""]
+4:I[31295,[],""]
+5:I[91573,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+6:I[65565,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+7:I[90885,["313","static/chunks/313-59b0cddb5150df42.js","444","static/chunks/444-746f01fa27de7393.js","486","static/chunks/app/docs/api/core-classes/page-b68ce71c38f683de.js"],"default"]
+b:I[28393,[],""]
+:HL["/_next/static/css/dcb6f1730826ef68.css","style"]
+8:T1b5f,# Core Classes API Reference
+
+This section covers the fundamental classes that form the backbone of WiTwin.
+
+## Environment
+
+The `Environment` class represents the simulation environment where all wireless propagation takes place.
+
+### Constructor
+
+```python
+wt.Environment(
+    frequency: float,
+    bandwidth: float = 1e9,
+    temperature: float = 293.15,
+    resolution: Tuple[int, int] = (1024, 1024),
+    bounds: Optional[Tuple[float, float, float, float, float, float]] = None
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `frequency` | float | - | Operating frequency in Hz |
+| `bandwidth` | float | 1e9 | Signal bandwidth in Hz |
+| `temperature` | float | 293.15 | Ambient temperature in Kelvin |
+| `resolution` | Tuple[int, int] | (1024, 1024) | Spatial resolution for ray tracing |
+| `bounds` | Optional[Tuple] | None | Environment bounds [xmin, ymin, zmin, xmax, ymax, zmax] |
+
+### Methods
+
+#### `add_device(device: Union[Transmitter, Receiver]) -> None`
+
+Adds a wireless device to the environment.
+
+```python
+env = wt.Environment(frequency=60e9)
+tx = wt.Transmitter(position=[0, 0, 10])
+env.add_device(tx)
+```
+
+#### `add_object(obj: Object) -> None`
+
+Adds a physical object to the environment.
+
+```python
+wall = wt.Object(shape='box', dimensions=[10, 0.3, 3])
+env.add_object(wall)
+```
+
+#### `simulate(config: Optional[SimulationConfig] = None) -> SimulationResults`
+
+Runs the ray tracing simulation.
+
+```python
+results = env.simulate()
+# or with custom config
+config = wt.SimulationConfig(max_reflections=5)
+results = env.simulate(config)
+```
+
+#### `compute_coverage(transmitter: Transmitter, height: float = 1.5) -> np.ndarray`
+
+Computes coverage map at specified height.
+
+```python
+coverage_map = env.compute_coverage(tx, height=2.0)
+```
+
+---
+
+## Transmitter
+
+Represents a wireless transmitter device.
+
+### Constructor
+
+```python
+wt.Transmitter(
+    position: List[float],
+    orientation: List[float] = [0, 0, 0],
+    power_dbm: float = 30,
+    antenna: Optional[Antenna] = None,
+    frequency: Optional[float] = None
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `position` | List[float] | - | 3D position [x, y, z] in meters |
+| `orientation` | List[float] | [0, 0, 0] | Euler angles [roll, pitch, yaw] in degrees |
+| `power_dbm` | float | 30 | Transmit power in dBm |
+| `antenna` | Optional[Antenna] | Isotropic | Antenna pattern object |
+| `frequency` | Optional[float] | None | Override environment frequency |
+
+### Properties
+
+- `position`: Get/set transmitter position
+- `orientation`: Get/set transmitter orientation
+- `power_dbm`: Get/set transmit power
+- `power_watts`: Get transmit power in watts
+
+### Example
+
+```python
+# Create a directional transmitter
+tx = wt.Transmitter(
+    position=[0, 0, 5],
+    orientation=[0, 0, 45],  # 45 degrees yaw
+    power_dbm=23,
+    antenna=wt.antennas.HornAntenna(gain_dbi=15)
+)
+```
+
+---
+
+## Receiver
+
+Represents a wireless receiver device.
+
+### Constructor
+
+```python
+wt.Receiver(
+    position: List[float],
+    orientation: List[float] = [0, 0, 0],
+    antenna: Optional[Antenna] = None,
+    noise_figure: float = 3.0,
+    frequency: Optional[float] = None
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `position` | List[float] | - | 3D position [x, y, z] in meters |
+| `orientation` | List[float] | [0, 0, 0] | Euler angles [roll, pitch, yaw] in degrees |
+| `antenna` | Optional[Antenna] | Isotropic | Antenna pattern object |
+| `noise_figure` | float | 3.0 | Receiver noise figure in dB |
+| `frequency` | Optional[float] | None | Override environment frequency |
+
+### Methods
+
+#### `calculate_noise_power(bandwidth: float) -> float`
+
+Calculates thermal noise power for given bandwidth.
+
+```python
+rx = wt.Receiver(position=[10, 0, 1.5])
+noise_power_dbm = rx.calculate_noise_power(bandwidth=100e6)
+```
+
+---
+
+## Object
+
+Represents physical objects in the environment.
+
+### Constructor
+
+```python
+wt.Object(
+    shape: str,
+    dimensions: List[float],
+    position: List[float] = [0, 0, 0],
+    orientation: List[float] = [0, 0, 0],
+    material: Union[str, Material] = 'concrete',
+    velocity: Optional[List[float]] = None
+)
+```
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `shape` | str | - | Object shape: 'box', 'sphere', 'cylinder', 'mesh' |
+| `dimensions` | List[float] | - | Shape-specific dimensions |
+| `position` | List[float] | [0, 0, 0] | Center position [x, y, z] |
+| `orientation` | List[float] | [0, 0, 0] | Euler angles [roll, pitch, yaw] |
+| `material` | Union[str, Material] | 'concrete' | Material properties |
+| `velocity` | Optional[List[float]] | None | Velocity vector [vx, vy, vz] m/s |
+
+### Shape Dimensions
+
+- **box**: `[width, depth, height]`
+- **sphere**: `[radius]`
+- **cylinder**: `[radius, height]`
+- **mesh**: `[scale]` (requires `mesh_file` parameter)
+
+### Example
+
+```python
+# Create a moving metal sphere
+sphere = wt.Object(
+    shape='sphere',
+    dimensions=[2.0],  # 2m radius
+    position=[5, 5, 2],
+    material='metal',
+    velocity=[10, 0, 0]  # Moving at 10 m/s in x-direction
+)
+```
+
+---
+
+## Material
+
+Defines electromagnetic properties of materials.
+
+### Constructor
+
+```python
+wt.Material(
+    name: str,
+    permittivity: complex,
+    permeability: complex = 1.0,
+    conductivity: float = 0.0,
+    frequency_dependent: bool = False
+)
+```
+
+#### Predefined Materials
+
+```python
+# Built-in materials
+concrete = wt.materials.CONCRETE
+metal = wt.materials.METAL
+glass = wt.materials.GLASS
+wood = wt.materials.WOOD
+```
+
+#### Custom Material
+
+```python
+# Create custom material
+custom_material = wt.Material(
+    name='special_absorber',
+    permittivity=4.5 - 0.1j,
+    conductivity=0.01
+)
+```
+
+---
+
+## Antenna Patterns
+
+### Available Antenna Types
+
+#### Isotropic
+```python
+antenna = wt.antennas.Isotropic()
+```
+
+#### Directional
+```python
+antenna = wt.antennas.DirectionalAntenna(
+    gain_dbi=10,
+    beamwidth_h=60,  # Horizontal beamwidth in degrees
+    beamwidth_v=30   # Vertical beamwidth in degrees
+)
+```
+
+#### Patch Antenna
+```python
+antenna = wt.antennas.PatchAntenna(
+    gain_dbi=6,
+    width=0.05,  # Physical dimensions
+    height=0.05
+)
+```
+
+#### Horn Antenna
+```python
+antenna = wt.antennas.HornAntenna(
+    gain_dbi=15,
+    aperture_width=0.1,
+    aperture_height=0.08
+)
+```
+
+#### Array Antenna
+```python
+antenna = wt.antennas.ArrayAntenna(
+    element_pattern=wt.antennas.PatchAntenna(),
+    n_elements=4,
+    spacing=0.5,  # In wavelengths
+    weights=np.array([1, 1, 1, 1])  # Complex weights for beamforming
+)
+```
+
+---
+
+## Next Steps
+
+- Learn about [Simulation Engine](/docs/api/simulation-engine) for advanced simulation options
+- Explore [Utilities](/docs/api/utilities) for helper functions and tools
+- See [Examples](https://github.com/witwin/witwin/tree/main/examples) for practical implementations0:{"P":null,"b":"LxGOVeIeEEk2Ycth8XaAT","p":"","c":["","docs","api","core-classes"],"i":false,"f":[[["",{"children":["docs",{"children":["api",{"children":["core-classes",{"children":["__PAGE__",{}]}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/dcb6f1730826ef68.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"__className_e8ce0c min-h-screen bg-background antialiased","children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["docs",["$","$1","c",{"children":[null,[["$","$L5",null,{}],["$","$L6",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]]]}],{"children":["api",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["core-classes",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"animate-fadeIn","children":["$","$L7",null,{"content":"$8"}]}],null,"$L9"]}],{},null,false]},null,false]},null,false]},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
+c:I[59665,[],"OutletBoundary"]
+e:I[74911,[],"AsyncMetadataOutlet"]
+10:I[59665,[],"ViewportBoundary"]
+12:I[59665,[],"MetadataBoundary"]
+13:"$Sreact.suspense"
+9:["$","$Lc",null,{"children":["$Ld",["$","$Le",null,{"promise":"$@f"}]]}]
+a:["$","$1","h",{"children":[null,[["$","$L10",null,{"children":"$L11"}],null],["$","$L12",null,{"children":["$","div",null,{"hidden":true,"children":["$","$13",null,{"fallback":null,"children":"$L14"}]}]}]]}]
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+d:null
+f:{"metadata":[["$","title","0",{"children":"RFDT - The RF Digital Twin"}],["$","meta","1",{"name":"description","content":"Real-time physics simulation and RF digital twin platform"}]],"error":null,"digest":"$undefined"}
+14:"$f:metadata"

@@ -1,0 +1,123 @@
+1:"$Sreact.fragment"
+2:I[18423,["177","static/chunks/app/layout-30112eed97c08ba4.js"],"default"]
+3:I[87555,[],""]
+4:I[31295,[],""]
+5:I[91573,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+6:I[65565,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+7:I[90885,["313","static/chunks/313-59b0cddb5150df42.js","444","static/chunks/444-746f01fa27de7393.js","145","static/chunks/app/docs/introduction/page-b68ce71c38f683de.js"],"default"]
+b:I[28393,[],""]
+:HL["/_next/static/css/dcb6f1730826ef68.css","style"]
+8:Tf19,# Introduction to RF Digital Twin
+
+Welcome to **RF Digital Twin** - The RF Digital Twin platform for next-generation wireless system simulation and optimization.
+
+## What is RF Digital Twin?
+
+RF Digital Twin is a cutting-edge simulation platform that creates high-fidelity digital twins of wireless communication systems. By combining physics-based ray tracing, electromagnetic modeling, and machine learning, RF Digital Twin enables researchers and engineers to:
+
+- **Design** and optimize wireless networks before deployment
+- **Predict** real-world performance with unprecedented accuracy
+- **Accelerate** development cycles through rapid prototyping
+- **Reduce** costs by minimizing physical testing
+
+## Key Capabilities
+
+### 🌊 Physics-Based Simulation
+- Accurate electromagnetic wave propagation modeling
+- Material-aware ray tracing with reflection, diffraction, and scattering
+- Support for complex indoor and outdoor environments
+
+### 🎯 Multi-Technology Support
+- **5G/6G Networks**: mmWave and sub-6GHz bands
+- **Radar Systems**: FMCW, pulse, and MIMO configurations
+- **WiFi/Bluetooth**: Indoor positioning and connectivity
+- **Satellite Communications**: LEO, MEO, and GEO constellations
+
+### ⚡ Real-Time Performance
+- GPU-accelerated computation for instant results
+- Parallel processing of millions of rays
+- Interactive visualization and analysis
+
+### 🔄 End-to-End Differentiability
+- Gradient-based optimization of system parameters
+- Machine learning integration for intelligent design
+- Automatic differentiation through the entire signal chain
+
+## Why Choose RF Digital Twin?
+
+### Industry-Leading Accuracy
+Our proprietary ray tracing engine achieves:
+- **< 3 dB** mean prediction error in urban environments
+- **95%** correlation with real-world measurements
+- **Sub-centimeter** spatial resolution
+
+### Seamless Integration
+```python
+# Simple as pip install
+pip install rfdt
+
+# Import and start simulating
+import rfdt as rf
+env = wt.Environment()
+```
+
+### Trusted by Leaders
+Used by top research institutions and companies worldwide:
+- **Anonymous Institution A** - 5G/6G research
+- **Anonymous Institution B** - Medical device communications
+- **Anonymous Company C** - Next-gen smartphone antennas
+- **Anonymous Company D** - Spatial computing applications
+
+## Use Cases
+
+### Network Planning
+Design optimal base station placement for maximum coverage and capacity while minimizing interference.
+
+### Autonomous Vehicles
+Simulate V2X communication scenarios with realistic vehicle dynamics and urban propagation.
+
+### Smart Cities
+Model IoT sensor networks and optimize connectivity in complex urban environments.
+
+### Aerospace & Defense
+Analyze radar cross-sections and communication links for mission-critical applications.
+
+## Getting Started
+
+Ready to revolutionize your wireless system design? Let's get you up and running:
+
+1. **[Installation Guide](/docs/installation)** - Set up RF Digital Twin in minutes
+2. **[Quick Start Tutorial](/docs/quick-start)** - Your first simulation
+3. **[Basic Simulation](/docs/tutorials/basic-simulation)** - Deep dive tutorial
+
+## Community & Support
+
+Join our growing community of wireless innovation pioneers:
+
+- 📧 **Email**: Contact available after publication
+- 💬 **Discord**: Community available after publication
+- 🐦 **Twitter**: Updates available after publication
+- 📚 **GitHub**: Repository available after publication
+
+## What's Next?
+
+Explore our comprehensive documentation to unlock the full potential of RF Digital Twin:
+
+- **[Tutorials](/docs/tutorials)** - Step-by-step guides for common scenarios
+- **[API Reference](/docs/api)** - Complete technical documentation
+- **[Advanced Topics](/docs/advanced)** - Push the boundaries of what's possible
+
+---
+
+*Ready to transform your wireless development workflow? Let's build the future of connectivity together.* 🚀0:{"P":null,"b":"LxGOVeIeEEk2Ycth8XaAT","p":"","c":["","docs","introduction"],"i":false,"f":[[["",{"children":["docs",{"children":["introduction",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/dcb6f1730826ef68.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"__className_e8ce0c min-h-screen bg-background antialiased","children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["docs",["$","$1","c",{"children":[null,[["$","$L5",null,{}],["$","$L6",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]]]}],{"children":["introduction",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"animate-fadeIn","children":["$","$L7",null,{"content":"$8"}]}],null,"$L9"]}],{},null,false]},null,false]},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
+c:I[59665,[],"OutletBoundary"]
+e:I[74911,[],"AsyncMetadataOutlet"]
+10:I[59665,[],"ViewportBoundary"]
+12:I[59665,[],"MetadataBoundary"]
+13:"$Sreact.suspense"
+9:["$","$Lc",null,{"children":["$Ld",["$","$Le",null,{"promise":"$@f"}]]}]
+a:["$","$1","h",{"children":[null,[["$","$L10",null,{"children":"$L11"}],null],["$","$L12",null,{"children":["$","div",null,{"hidden":true,"children":["$","$13",null,{"fallback":null,"children":"$L14"}]}]}]]}]
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+d:null
+f:{"metadata":[["$","title","0",{"children":"RFDT - The RF Digital Twin"}],["$","meta","1",{"name":"description","content":"Real-time physics simulation and RF digital twin platform"}]],"error":null,"digest":"$undefined"}
+14:"$f:metadata"

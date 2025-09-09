@@ -1,0 +1,283 @@
+1:"$Sreact.fragment"
+2:I[18423,["177","static/chunks/app/layout-30112eed97c08ba4.js"],"default"]
+3:I[87555,[],""]
+4:I[31295,[],""]
+5:I[91573,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+6:I[65565,["274","static/chunks/274-f89b566e52fd4eb3.js","874","static/chunks/874-3e820bd666038662.js","499","static/chunks/app/docs/layout-bad44f4195ad99e8.js"],"default"]
+7:I[90885,["313","static/chunks/313-59b0cddb5150df42.js","444","static/chunks/444-746f01fa27de7393.js","781","static/chunks/app/docs/quick-start/page-b68ce71c38f683de.js"],"default"]
+b:I[28393,[],""]
+:HL["/_next/static/css/dcb6f1730826ef68.css","style"]
+8:T1a19,# Quick Start Guide
+
+Get up and running with WiTwin in under 5 minutes! This guide will walk you through your first simulation.
+
+## Your First Simulation
+
+Let's create a simple wireless link between two devices and analyze the channel characteristics.
+
+### Step 1: Import WiTwin
+
+```python
+import witwin as wt
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Check version
+print(f"WiTwin version: {wt.__version__}")
+```
+
+### Step 2: Create the Environment
+
+```python
+# Initialize simulation environment
+env = wt.Environment(
+    frequency=28e9,      # 28 GHz (5G mmWave)
+    bandwidth=400e6,     # 400 MHz
+    temperature=293.15   # 20°C
+)
+
+print(f"Wavelength: {env.wavelength*1000:.2f} mm")
+```
+
+### Step 3: Add Wireless Devices
+
+```python
+# Create a transmitter
+transmitter = wt.Transmitter(
+    position=[0, 0, 10],     # 10m height
+    power_dbm=23,            # 23 dBm (200 mW)
+    antenna=wt.antennas.Isotropic()
+)
+
+# Create a receiver
+receiver = wt.Receiver(
+    position=[50, 0, 1.5],   # 50m away, 1.5m height
+    antenna=wt.antennas.PatchAntenna(gain_dbi=6)
+)
+
+# Add to environment
+env.add_device(transmitter)
+env.add_device(receiver)
+```
+
+### Step 4: Run the Simulation
+
+```python
+# Simulate propagation
+results = env.simulate()
+
+# Get received power
+rx_power = results.get_received_power(transmitter, receiver)
+print(f"Received power: {rx_power:.2f} dBm")
+
+# Calculate path loss
+path_loss = transmitter.power_dbm - rx_power
+print(f"Path loss: {path_loss:.2f} dB")
+```
+
+### Step 5: Visualize Results
+
+```python
+# Visualize the scenario
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+# 3D view
+env.plot_3d(ax=ax1)
+ax1.set_title("3D Scenario View")
+
+# Coverage map
+coverage = env.compute_coverage(transmitter, height=1.5)
+im = ax2.imshow(coverage, cmap='viridis', extent=[-100, 100, -100, 100])
+ax2.set_title("Coverage Map at 1.5m Height")
+ax2.set_xlabel("X (m)")
+ax2.set_ylabel("Y (m)")
+plt.colorbar(im, ax=ax2, label="Power (dBm)")
+
+plt.tight_layout()
+plt.show()
+```
+
+## Adding Obstacles
+
+Make the simulation more realistic by adding buildings:
+
+```python
+# Create a building
+building = wt.Object(
+    shape='box',
+    dimensions=[20, 15, 25],  # 20x15m, 25m tall
+    position=[25, 10, 12.5],
+    material='concrete'
+)
+
+env.add_object(building)
+
+# Re-run simulation
+results = env.simulate()
+rx_power_blocked = results.get_received_power(transmitter, receiver)
+
+print(f"Power without building: {rx_power:.2f} dBm")
+print(f"Power with building: {rx_power_blocked:.2f} dBm")
+print(f"Additional loss: {rx_power - rx_power_blocked:.2f} dB")
+```
+
+## Channel Analysis
+
+Analyze the multipath channel characteristics:
+
+```python
+# Get channel impulse response
+channel = results.get_channel(transmitter, receiver)
+
+# Plot power delay profile
+plt.figure(figsize=(10, 6))
+plt.stem(channel.delays * 1e9, 20*np.log10(np.abs(channel.gains)))
+plt.xlabel("Delay (ns)")
+plt.ylabel("Power (dB)")
+plt.title("Power Delay Profile")
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# Calculate RMS delay spread
+rms_delay = channel.rms_delay_spread() * 1e9
+print(f"RMS Delay Spread: {rms_delay:.2f} ns")
+
+# Calculate coherence bandwidth
+coherence_bw = channel.coherence_bandwidth() / 1e6
+print(f"Coherence Bandwidth: {coherence_bw:.2f} MHz")
+```
+
+## MIMO Configuration
+
+Explore MIMO capabilities:
+
+```python
+# Create MIMO transmitter (2x2)
+mimo_tx = wt.MIMOTransmitter(
+    position=[0, 0, 10],
+    n_antennas=2,
+    spacing=0.5,  # Half wavelength
+    power_dbm=20
+)
+
+# Create MIMO receiver
+mimo_rx = wt.MIMOReceiver(
+    position=[50, 0, 1.5],
+    n_antennas=2,
+    spacing=0.5
+)
+
+# Clear and add MIMO devices
+env.clear_devices()
+env.add_device(mimo_tx)
+env.add_device(mimo_rx)
+
+# Simulate MIMO channel
+mimo_results = env.simulate()
+H = mimo_results.get_channel_matrix(mimo_tx, mimo_rx)
+
+print(f"Channel matrix shape: {H.shape}")
+print(f"Condition number: {np.linalg.cond(H):.2f}")
+
+# Calculate capacity
+snr_db = 20
+snr_linear = 10**(snr_db/10)
+capacity = np.log2(np.linalg.det(np.eye(2) + snr_linear/2 * H @ H.conj().T))
+print(f"MIMO Capacity: {capacity:.2f} bits/s/Hz")
+```
+
+## Dynamic Scenarios
+
+Simulate movement and Doppler effects:
+
+```python
+# Create moving vehicle
+vehicle = wt.MobileDevice(
+    position=[0, -50, 1.5],
+    velocity=[0, 20, 0],  # 20 m/s (72 km/h) in y-direction
+    antenna=wt.antennas.OmniAntenna()
+)
+
+env.add_device(vehicle)
+
+# Simulate over time
+time_steps = np.linspace(0, 5, 100)  # 5 seconds
+powers = []
+
+for t in time_steps:
+    # Update vehicle position
+    vehicle.update_position(t)
+    
+    # Simulate
+    results = env.simulate()
+    power = results.get_received_power(transmitter, vehicle)
+    powers.append(power)
+
+# Plot received power over time
+plt.figure(figsize=(10, 6))
+plt.plot(time_steps, powers)
+plt.xlabel("Time (s)")
+plt.ylabel("Received Power (dBm)")
+plt.title("Received Power vs Time (Moving Vehicle)")
+plt.grid(True, alpha=0.3)
+plt.show()
+
+# Calculate Doppler shift
+doppler = vehicle.calculate_doppler(transmitter)
+print(f"Maximum Doppler shift: {doppler:.2f} Hz")
+```
+
+## Save and Load Scenarios
+
+Save your simulation setup for later use:
+
+```python
+# Save scenario
+env.save("my_first_scenario.wt")
+print("Scenario saved!")
+
+# Load scenario
+loaded_env = wt.Environment.load("my_first_scenario.wt")
+print(f"Loaded {len(loaded_env.devices)} devices and {len(loaded_env.objects)} objects")
+```
+
+## What's Next?
+
+Congratulations! You've completed your first WiTwin simulations. Here's what to explore next:
+
+### Tutorials
+- **[Basic Simulation](/docs/tutorials/basic-simulation)** - Comprehensive walkthrough
+- **[Radar Configuration](/docs/tutorials/radar-configuration)** - Radar system simulation
+- **[Communication Channels](/docs/tutorials/communication-channels)** - Advanced channel modeling
+
+### Advanced Topics
+- **[Differentiable Simulation](/docs/advanced/differentiable-rendering)** - Gradient-based optimization
+- **[Custom Materials](/docs/advanced/custom-physics)** - Define custom propagation models
+- **[GPU Acceleration](/docs/advanced/optimization)** - Performance optimization
+
+### Resources
+- **[API Reference](/docs/api)** - Complete documentation
+- **[Example Gallery](https://github.com/witwin/witwin/tree/main/examples)** - More examples
+- **[Community Forum](https://forum.witwin.ai)** - Get help and share ideas
+
+## Tips for Success
+
+1. **Start Simple**: Begin with line-of-sight scenarios before adding complexity
+2. **Validate Results**: Compare with theoretical models (e.g., Friis equation)
+3. **Use GPU**: Enable GPU acceleration for larger scenarios
+4. **Experiment**: Try different frequencies, materials, and geometries
+
+---
+
+*You're now ready to explore the full power of WiTwin! Happy simulating!* 🚀0:{"P":null,"b":"LxGOVeIeEEk2Ycth8XaAT","p":"","c":["","docs","quick-start"],"i":false,"f":[[["",{"children":["docs",{"children":["quick-start",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/dcb6f1730826ef68.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","className":"dark","children":["$","body",null,{"className":"__className_e8ce0c min-h-screen bg-background antialiased","children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["docs",["$","$1","c",{"children":[null,[["$","$L5",null,{}],["$","$L6",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]}]]]}],{"children":["quick-start",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"animate-fadeIn","children":["$","$L7",null,{"content":"$8"}]}],null,"$L9"]}],{},null,false]},null,false]},null,false]},null,false],"$La",false]],"m":"$undefined","G":["$b",[]],"s":false,"S":true}
+c:I[59665,[],"OutletBoundary"]
+e:I[74911,[],"AsyncMetadataOutlet"]
+10:I[59665,[],"ViewportBoundary"]
+12:I[59665,[],"MetadataBoundary"]
+13:"$Sreact.suspense"
+9:["$","$Lc",null,{"children":["$Ld",["$","$Le",null,{"promise":"$@f"}]]}]
+a:["$","$1","h",{"children":[null,[["$","$L10",null,{"children":"$L11"}],null],["$","$L12",null,{"children":["$","div",null,{"hidden":true,"children":["$","$13",null,{"fallback":null,"children":"$L14"}]}]}]]}]
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+d:null
+f:{"metadata":[["$","title","0",{"children":"RFDT - The RF Digital Twin"}],["$","meta","1",{"name":"description","content":"Real-time physics simulation and RF digital twin platform"}]],"error":null,"digest":"$undefined"}
+14:"$f:metadata"
