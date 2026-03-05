@@ -1,21 +1,741 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <title>Redirecting…</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RFDT: Physically Accurate Differentiable Inverse Rendering for Radio Frequency Digital Twin | MobiCom 2026</title>
+  <meta name="description" content="RFDT is the first fully differentiable RF simulation framework that reconstructs digital twins from real RF measurements. It enables gradient-based 3D reconstruction via radar, test-time adaptation for ML-based sensing, and physics-based optimization for 6G communication systems. Accepted at ACM MobiCom 2026." />
+  <meta name="keywords" content="RF simulation, differentiable ray tracing, digital twin, differentiable rendering, 6G, channel estimation, RF digital twin, radio frequency simulation, radar 3D reconstruction, inverse rendering, MobiCom 2026, wireless sensing, RFDT, edge diffraction, digital twin optimization, mmWave, MIMO, FMCW radar, test-time adaptation, metasurface optimization" />
+  <meta name="author" content="Xingyu Chen, Xinyu Zhang, Kai Zheng, Xinmin Fang, Tzu-Mao Li, Chris Xiaoxuan Lu, Zhengxiong Li" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://rfdt.witwin.ai/" />
 
-    <link rel="canonical" href="https://witwin.ai" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="RFDT: Physically Accurate Differentiable Inverse Rendering for Radio Frequency Digital Twin" />
+  <meta property="og:description" content="The first fully differentiable RF simulation framework for digital twin reconstruction. Enables gradient-based 3D reconstruction, test-time adaptation for sensing, and physics-based 6G communication optimization. MobiCom 2026." />
+  <meta property="og:url" content="https://rfdt.witwin.ai/" />
+  <meta property="og:image" content="https://rfdt.witwin.ai/static/images/pull_fixed.png" />
+  <meta property="og:site_name" content="RFDT - RF Digital Twin" />
+  <meta property="article:published_time" content="2026-10-26" />
+  <meta property="article:author" content="Xingyu Chen" />
 
-    <meta http-equiv="refresh" content="0; url=https://witwin.ai" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="RFDT: Differentiable Inverse Rendering for RF Digital Twin | MobiCom 2026" />
+  <meta name="twitter:description" content="The first fully differentiable RF simulation framework for digital twin reconstruction from real RF measurements. Enables 3D reconstruction, ML sensing adaptation, and 6G optimization." />
+  <meta name="twitter:image" content="https://rfdt.witwin.ai/static/images/pull_fixed.png" />
 
-    <script>
-        window.location.replace("https://witwin.ai");
-    </script>
+  <!-- Schema.org JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "name": "Physically Accurate Differentiable Inverse Rendering for Radio Frequency Digital Twin",
+    "headline": "Physically Accurate Differentiable Inverse Rendering for Radio Frequency Digital Twin",
+    "description": "RFDT is a physically-based differentiable RF simulation framework that enables gradient-based interaction between virtual and physical worlds for digital twin construction.",
+    "author": [
+      {"@type": "Person", "name": "Xingyu Chen", "affiliation": {"@type": "Organization", "name": "University of California, San Diego"}, "url": "https://xingyuchen.me/"},
+      {"@type": "Person", "name": "Xinyu Zhang", "affiliation": {"@type": "Organization", "name": "University of California, San Diego"}, "url": "http://xyzhang.ucsd.edu/"},
+      {"@type": "Person", "name": "Kai Zheng", "affiliation": {"@type": "Organization", "name": "University of California, San Diego"}, "url": "https://kaizheng.me/"},
+      {"@type": "Person", "name": "Xinmin Fang", "affiliation": {"@type": "Organization", "name": "University of Colorado Denver"}, "url": "https://fangxm.me/"},
+      {"@type": "Person", "name": "Tzu-Mao Li", "affiliation": {"@type": "Organization", "name": "University of California, San Diego"}, "url": "https://cseweb.ucsd.edu/~tzli/"},
+      {"@type": "Person", "name": "Chris Xiaoxuan Lu", "affiliation": {"@type": "Organization", "name": "University College London"}, "url": "https://christopherlu.github.io/"},
+      {"@type": "Person", "name": "Zhengxiong Li", "affiliation": {"@type": "Organization", "name": "University of Colorado Denver"}, "url": "https://cse.ucdenver.edu/~lizheng/"}
+    ],
+    "datePublished": "2026-10-26",
+    "publisher": {"@type": "Organization", "name": "ACM"},
+    "isPartOf": {
+      "@type": "Event",
+      "name": "The 32nd Annual International Conference on Mobile Computing and Networking (MobiCom 2026)",
+      "location": {"@type": "Place", "name": "Austin, TX, USA"}
+    },
+    "identifier": {"@type": "PropertyValue", "propertyID": "DOI", "value": "10.1145/3795866.3796686"},
+    "url": "https://rfdt.witwin.ai/",
+    "image": "https://rfdt.witwin.ai/static/images/pull_fixed.png",
+    "keywords": ["RF simulation", "differentiable ray tracing", "digital twin", "differentiable rendering", "6G", "channel estimation", "RF digital twin", "radio frequency simulation", "radar 3D reconstruction", "inverse rendering", "wireless sensing", "mmWave", "MIMO", "FMCW radar"]
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
+
+  <style>
+    /* ===== Reset & Base ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --zinc-50: #FAFAFA;
+      --zinc-100: #F4F4F5;
+      --zinc-200: #E4E4E7;
+      --zinc-300: #D4D4D8;
+      --zinc-400: #A1A1AA;
+      --zinc-500: #71717A;
+      --zinc-600: #52525B;
+      --zinc-700: #3F3F46;
+      --zinc-800: #27272A;
+      --zinc-900: #18181B;
+
+      --text: var(--zinc-900);
+      --text-secondary: var(--zinc-500);
+      --bg: var(--zinc-50);
+      --white: #FFFFFF;
+      --border: var(--zinc-200);
+      --section-gap: 4rem;
+      --content-width: 980px;
+      --wide-width: 1100px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: #2563EB; text-decoration: none; transition: color 0.2s; }
+    a:hover { color: #1D4ED8; }
+
+    img { max-width: 100%; height: auto; display: block; }
+
+    /* ===== Top Nav ===== */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--zinc-200);
+    }
+
+    .top-nav-inner {
+      max-width: var(--wide-width);
+      margin: 0 auto;
+      padding: 0 2rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--zinc-900);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+
+    .nav-logo:hover { color: var(--zinc-900); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      color: var(--zinc-500);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--zinc-900);
+      background: rgba(0,0,0,0.04);
+    }
+
+
+    /* ===== Hero Section ===== */
+    .hero {
+      background: linear-gradient(135deg, var(--zinc-100) 0%, #F0F0F2 50%, var(--zinc-50) 100%);
+      padding: 4rem 1.5rem 3rem;
+      margin-top: 52px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 70%, rgba(63,63,70,0.03) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 30%, rgba(113,113,122,0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--wide-width);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .venue-badge {
+      display: inline-block;
+      background: var(--zinc-800);
+      color: white;
+      padding: 0.35rem 1.2rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 1.2rem;
+    }
+
+    h1.paper-title {
+      font-family: 'Noto Sans', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 1.8rem;
+      letter-spacing: -0.02em;
+    }
+
+    h1.paper-title .highlight {
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Authors */
+    .authors {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.3rem 1.4rem;
+      margin-bottom: 0.8rem;
+      font-size: 1.05rem;
+    }
+
+    .author { font-weight: 500; white-space: nowrap; }
+    .author:hover { opacity: 0.7; }
+    .author sup { color: var(--zinc-600); font-weight: 600; font-size: 0.7em; margin-left: 1px; }
+
+    .affiliations {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.2rem 1.6rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+
+    .affiliations span sup { font-weight: 600; color: var(--zinc-600); margin-right: 2px; }
+
+    /* Link Buttons */
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.3rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      border: 1.5px solid var(--border);
+      background: var(--white);
+      color: var(--text);
+    }
+
+    .btn:hover {
+      border-color: var(--zinc-700);
+      color: var(--zinc-900);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(24,24,27,0.08);
+    }
+
+    .btn i, .btn .ai { font-size: 1.1em; }
+
+    .btn.primary-btn {
+      background: var(--zinc-800);
+      color: white;
+      border-color: var(--zinc-800);
+    }
+
+    .btn.primary-btn:hover {
+      background: var(--zinc-700);
+      border-color: var(--zinc-700);
+      color: white;
+    }
+
+    /* ===== Teaser ===== */
+    .teaser {
+      max-width: 780px;
+      margin: -1rem auto 0;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .teaser-img-wrap {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .teaser-img-wrap img { border-radius: 8px; margin: 0 auto; }
+
+    .teaser-caption {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ===== Sections ===== */
+    section {
+      max-width: var(--content-width);
+      margin: 0 auto;
+      padding: var(--section-gap) 1.5rem;
+    }
+
+    section.wide {
+      max-width: var(--wide-width);
+    }
+
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--zinc-600), var(--zinc-400));
+      margin: 0.6rem auto 0;
+      border-radius: 2px;
+    }
+
+    /* ===== Abstract ===== */
+    .abstract-content {
+      font-size: 1.02rem;
+      line-height: 1.85;
+      color: var(--text-secondary);
+      text-align: justify;
+      max-width: 820px;
+      margin: 0 auto;
+      background: var(--white);
+      padding: 2rem 2.5rem;
+      border-radius: 14px;
+      border-left: 4px solid var(--zinc-700);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+    }
+
+    /* ===== Figure Card ===== */
+    .figure-card {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+    }
+
+    .figure-card img {
+      border-radius: 8px;
+      margin: 0 auto;
+    }
+
+    .fig-caption {
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .fig-caption strong { color: var(--text); }
+
+    /* ===== Results Gallery ===== */
+    .results-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .results-row .figure-card { margin-bottom: 0; }
+
+    /* ===== BibTeX ===== */
+    .bibtex-section {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 2rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    .bibtex-code {
+      position: relative;
+      background: var(--zinc-100);
+      color: var(--zinc-700);
+      padding: 1.5rem;
+      border-radius: 10px;
+      border: 1px solid var(--zinc-200);
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .bibtex-code .key { color: var(--zinc-600); }
+    .bibtex-code .val { color: var(--zinc-800); }
+    .bibtex-code .type { color: var(--zinc-500); }
+
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background: var(--zinc-200);
+      border: none;
+      color: var(--zinc-600);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover { background: var(--zinc-300); }
+
+    /* ===== Footer ===== */
+    footer {
+      text-align: center;
+      padding: 2rem 1.5rem 3rem;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+      max-width: var(--content-width);
+      margin: 0 auto;
+    }
+
+    footer a { font-weight: 500; }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 768px) {
+      h1.paper-title { font-size: 1.7rem; }
+      .results-row { grid-template-columns: 1fr; }
+      .abstract-content { padding: 1.5rem; }
+      section { padding: 2.5rem 1rem; }
+      .authors { gap: 0.2rem 0.8rem; font-size: 0.95rem; }
+    }
+
+    /* ===== Prose paragraph style ===== */
+    .prose {
+      max-width: 820px;
+      margin: 0 auto;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    .prose p { margin-bottom: 1rem; text-align: justify; }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--text); }
+
+    /* Section subtitle */
+    .section-subtitle {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 1.5rem;
+      text-align: center;
+    }
+
+    /* Divider before subtitle */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--zinc-200);
+      margin: 3rem 0 2rem;
+    }
+
+    .stat {
+      display: inline-block;
+      font-weight: 700;
+      color: var(--zinc-800);
+    }
+  </style>
 </head>
 
 <body>
-    <p>Redirecting to <a href="https://witwin.ai">witwin.ai</a>…</p>
-</body>
 
+<!-- ==================== TOP NAV ==================== -->
+<nav class="top-nav">
+  <div class="top-nav-inner">
+    <a class="nav-logo" href="https://witwin.ai" target="_blank">RF Digital Twin</a>
+    <div class="nav-links">
+      <a href="https://witwin.ai/docs" target="_blank">Docs</a>
+      <a href="https://witwin.ai/publications" target="_blank">Publications</a>
+      <a href="https://witwin.ai/roadmap" target="_blank">Roadmap</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<header class="hero">
+  <div class="hero-inner">
+    <h1 class="paper-title">
+      Physically Accurate Differentiable Inverse Rendering<br/>
+      for <span class="highlight">Radio Frequency Digital Twin</span>
+    </h1>
+    <div class="venue-badge">MobiCom 2026</div>
+
+    <div class="authors">
+      <a class="author" href="https://xingyuchen.me/" target="_blank">Xingyu Chen<sup>1</sup></a>
+      <a class="author" href="http://xyzhang.ucsd.edu/" target="_blank">Xinyu Zhang<sup>1</sup></a>
+      <a class="author" href="https://kaizheng.me/" target="_blank">Kai Zheng<sup>1</sup></a>
+      <a class="author" href="https://fangxm.me/" target="_blank">Xinmin Fang<sup>2</sup></a>
+      <a class="author" href="https://cseweb.ucsd.edu/~tzli/" target="_blank">Tzu-Mao Li<sup>1</sup></a>
+      <a class="author" href="https://christopherlu.github.io/" target="_blank">Chris Xiaoxuan Lu<sup>3</sup></a>
+      <a class="author" href="https://cse.ucdenver.edu/~lizheng/" target="_blank">Zhengxiong Li<sup>2</sup></a>
+    </div>
+
+    <div class="affiliations">
+      <span><sup>1</sup>University of California, San Diego</span>
+      <span><sup>2</sup>University of Colorado Denver</span>
+      <span><sup>3</sup>University College London</span>
+    </div>
+
+    <div class="hero-links">
+      <a class="btn primary-btn" href="#" target="_blank">
+        <i class="ai ai-arxiv"></i> arXiv
+      </a>
+      <a class="btn" href="#" target="_blank">
+        <i class="fa-solid fa-file-pdf"></i> Paper
+      </a>
+      <a class="btn" href="https://github.com/Asixa/Mini-Differentiable-RF-Digital-Twin" target="_blank">
+        <i class="fa-brands fa-github"></i> Conceptual Demo
+      </a>
+      <span class="btn" style="opacity:0.55; cursor:default;">
+        <i class="fa-brands fa-github"></i> Complete Simulator
+        <a href="https://witwin.ai" target="_blank" style="font-size:0.75em;">(Coming Soon on WiTwin.AI)</a>
+      </span>
+      <a class="btn" href="#bibtex">
+        <i class="fa-solid fa-quote-left"></i> BibTeX
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== TEASER ==================== -->
+<div class="teaser">
+  <div class="teaser-img-wrap">
+    <img src="static/images/pull_fixed.png" alt="RFDT constructs digital twins by solving the inverse problem of RF simulation" />
+    <p class="teaser-caption">
+      <strong>RFDT</strong> constructs digital twins by solving the inverse problem of RF simulation.
+      <em>Top:</em> 3D reconstruction through radar simulation.
+      <em>Bottom:</em> Communication system optimization through RF scene rendering.
+    </p>
+  </div>
+</div>
+
+<!-- ==================== ABSTRACT ==================== -->
+<section id="abstract">
+  <h2 class="section-title">Abstract</h2>
+  <div class="abstract-content">
+    Digital twins (DTs) are virtual replicas of physical scenes that transform the design and evaluation
+    of wireless systems. Previous RF simulators are non-differentiable, limiting their potential
+    for DT construction. We present <strong>RFDT</strong>, a physically-based differentiable RF simulation
+    framework that enables gradient-based interaction between virtual and physical worlds. RFDT
+    overcomes discontinuities in RF ray tracing using a physically grounded edge-diffraction transition
+    function, and mitigates non-convexity from Fourier-domain processing through a signal-domain
+    transform surrogate. Our framework demonstrates the ability to accurately reconstruct digital twins
+    from real RF measurements and supports augmentation of downstream applications including
+    ML-based RF sensing and communication system optimization.
+  </div>
+</section>
+
+<!-- ==================== KEY INSIGHTS ==================== -->
+<section id="insights" class="wide">
+  <h2 class="section-title">Key Insights</h2>
+
+  <!-- Why differentiable rendering matters for RF -->
+  <div class="prose" style="margin-bottom: 2.5rem;">
+    <p>
+      As wireless systems evolve toward 6G, the ability to construct faithful digital replicas of
+      physical RF environments becomes essential. Yet existing RF simulators operate as black boxes &mdash;
+      they can predict signal propagation in a given scene, but cannot answer the inverse question:
+      <em>what scene configuration produced the signals we observe?</em> Differentiable rendering, which
+      has transformed computer vision and graphics, offers a principled solution. By making every step
+      of the simulation differentiable, we can backpropagate through the entire RF pipeline and
+      optimize scene parameters directly from measurements. This closes the loop between
+      the digital twin and its physical counterpart, enabling capabilities that were previously impossible.
+    </p>
+  </div>
+
+  <!-- Insight 1: Diffraction for differentiability -->
+  <div class="section-divider"></div>
+  <h3 class="section-subtitle">Differentiating RF Fields w.r.t. Geometric Parameters</h3>
+  <div class="prose" style="margin-bottom: 1.5rem;">
+    <p>
+      A central goal of differentiable RF simulation is to compute accurate gradients with respect to
+      <strong>geometric scene parameters</strong> &mdash; the position, orientation, and shape of every object
+      in the environment. These gradients are what allow an optimizer to iteratively deform a digital twin
+      until its simulated signals match real-world measurements. However, RF ray tracing is inherently
+      discontinuous in geometry: when a reflection point crosses an object boundary, the signal contribution
+      switches abruptly between on and off, producing undefined gradients at exactly the points that matter most.
+    </p>
+    <p>
+      Prior approaches resort to heuristic smoothing &mdash; artificially softening geometry or adding
+      fictitious roughness &mdash; which distorts phase accuracy and introduces biased gradients.
+      We observe that <strong>edge diffraction</strong>, a well-established physical phenomenon, already
+      provides the smooth transition we need. As a specular reflection point approaches an object edge,
+      the diffracted field naturally and continuously interpolates the signal contribution to zero.
+      By leveraging this physics-grounded transition function, RFDT achieves exact differentiability
+      of both direct and reflected fields with respect to geometric parameters &mdash; object positions,
+      rotations, vertex coordinates &mdash; no heuristic smoothing required.
+      The resulting gradients are unbiased and maintain wavelength-scale precision.
+    </p>
+  </div>
+  <div class="figure-card">
+    <img src="static/images/grad_param.png" alt="Gradients w.r.t. different scene parameters" />
+    <p class="fig-caption">
+      <strong>Gradients w.r.t. different scene parameters</strong> (object position, rotation, and Tx position),
+      with finite difference as ground truth.
+      RFDT achieves SSIM up to <strong>0.9997</strong> and PSNR up to <strong>63.09 dB</strong>.
+    </p>
+  </div>
+
+  <!-- Insight 2: Surrogate for non-convexity -->
+  <div class="section-divider"></div>
+  <h3 class="section-subtitle">Taming Non-Convexity with Surrogate Models</h3>
+  <div class="prose" style="margin-bottom: 1.5rem;">
+    <p>
+      Even with correct gradients, optimizing RF signals is challenging due to the periodic nature
+      of electromagnetic waves. The Fourier-domain transforms used in radar and communication systems
+      (e.g., FFT for range estimation, OFDM demodulation) further amplify this issue, creating
+      dense sidelobes and local minima that trap gradient-based optimizers.
+    </p>
+    <p>
+      We address this with <strong>signal-domain surrogate models</strong>. Instead of differentiating
+      through the raw FFT output, we replace the transform-domain representation with smooth surrogates
+      &mdash; such as point spread functions (PSF) and Dirichlet kernels &mdash; that faithfully approximate
+      the signal structure while eliminating the spurious local minima. This yields a smooth optimization landscape.
+    </p>
+  </div>
+  <div class="figure-card">
+    <img src="static/images/surrogate.png" alt="Signal-domain transform surrogate" />
+    <p class="fig-caption">
+      <strong>Signal-domain transform surrogate.</strong> By replacing FFT-domain representations with smooth
+      surrogates (PSF, Dirichlet), the optimization landscape becomes convex-like, enabling reliable convergence.
+    </p>
+  </div>
+
+  <!-- What does it enable? -->
+  <div class="section-divider"></div>
+  <h3 class="section-subtitle">What Does It Enable?</h3>
+  <div class="prose" style="margin-bottom: 1.5rem;">
+    <p>
+      With a fully differentiable RF simulator, gradients flow freely from observed signals back
+      to any scene parameter. This unlocks a unified framework for problems that previously required
+      separate, specialized solutions. A pre-trained neural network can be embedded as a learned prior
+      within the optimization loop, combining physics-grounded simulation with data-driven knowledge.
+      The same pipeline supports both <strong>inverse problems</strong> (reconstructing 3D geometry from
+      radar measurements) and <strong>forward optimization</strong> (finding optimal hardware configurations
+      for communication systems).
+    </p>
+  </div>
+  <div class="results-row">
+    <div class="figure-card">
+      <img src="static/images/PINN_fixed.png" alt="Enhancing neural networks with physics-informed simulation" />
+      <p class="fig-caption">
+        <strong>Enhancing neural networks.</strong> RFDT acts as a physics-informed regularizer that
+        backpropagates through the simulation loop, enabling test-time adaptation of pre-trained models
+        to unseen environments without any labeled data.
+      </p>
+    </div>
+    <div class="figure-card">
+      <img src="static/images/whitebox_fixed.png" alt="Replacing neural networks with white-box optimization" />
+      <p class="fig-caption">
+        <strong>Replacing neural networks.</strong> With fully differentiable scene parameterization,
+        RFDT directly optimizes geometry, materials, and RF attributes end-to-end &mdash; achieving
+        interpretable, physics-grounded solutions without black-box learned components.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== BIBTEX ==================== -->
+<section id="bibtex">
+  <h2 class="section-title">BibTeX</h2>
+  <div class="bibtex-section">
+    <div class="bibtex-code" id="bibtex-content"><button class="copy-btn" onclick="copyBibtex()"><i class="fa-regular fa-copy"></i> Copy</button><span class="type">@inproceedings</span>{chen2026rfdt,
+  <span class="key">title</span>     = <span class="val">{Physically Accurate Differentiable Inverse Rendering
+               for Radio Frequency Digital Twin}</span>,
+  <span class="key">author</span>    = <span class="val">{Chen, Xingyu and Zhang, Xinyu and Zheng, Kai and
+               Fang, Xinmin and Li, Tzu-Mao and Lu, Chris Xiaoxuan
+               and Li, Zhengxiong}</span>,
+  <span class="key">booktitle</span> = <span class="val">{Proceedings of the 32nd Annual International Conference
+               on Mobile Computing and Networking (MobiCom)}</span>,
+  <span class="key">year</span>      = <span class="val">{2026}</span>,
+  <span class="key">doi</span>       = <span class="val">{10.1145/3795866.3796686}</span>,
+  <span class="key">publisher</span> = <span class="val">{ACM}</span>,
+  <span class="key">address</span>   = <span class="val">{Austin, TX, USA}</span>,
+}</div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <p>
+    The website template is inspired by
+    <a href="https://nerfies.github.io" target="_blank">Nerfies</a>.
+  </p>
+</footer>
+
+<script>
+function copyBibtex() {
+  const el = document.getElementById('bibtex-content');
+  const text = el.innerText.replace('Copy', '').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.querySelector('.copy-btn');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(() => {
+      btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+    }, 2000);
+  });
+}
+</script>
+
+</body>
 </html>
